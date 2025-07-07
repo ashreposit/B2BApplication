@@ -1,0 +1,22 @@
+# Node.js dependencies
+/node_modules
+
+# Production build outputs (if any)
+/dist
+/build
+
+# Keep environment variables out of version control
+.env
+
+# Jest coverage and cache
+coverage/
+.jest/
+jest-test-results.json
+
+# Prisma generated files
+prisma/migrations/
+prisma/dev.db
+prisma/dev.db-journal
+
+# Swagger UI generated docs (if you're generating any on build)
+swagger-output.json

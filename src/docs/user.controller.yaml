@@ -1,0 +1,84 @@
+paths:
+  /user/create:
+    post:
+      description: Function to create user.
+      tags:
+        - user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - emailId
+                - password
+                - role
+              properties:
+                emailId:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                role:
+                  type: string
+                  enum :
+                    - ADMIN
+                    - USER
+              example: {
+                "email": "example@gmail.com",
+                "password": "example@123",
+                "role": "ADMIN"
+              }
+      responses:
+        '200':
+          description: User registered successfully
+        '400':
+          description: Error in creating user.
+
+  /user/login:
+    post:
+      description: Function to login.
+      tags:
+        - user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - emailId
+                - password
+              properties:
+                emailId:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              example: {
+                "email": "example@gmail.com",
+                "password": "example@123",
+              }
+      responses:
+        '200':
+          description: Login successful.
+        '401':
+          description: Invalid credentials.
+        '400':
+          description: Login failed.
+  
+  /user/getMe:
+    get:
+      description: Function to get the logged-in user’s details via token in cookie.
+      tags:
+        - user
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: User details fetched successfully.
+        '401':
+          description: Unauthorized.
+        '400':
+          description: Error in fetching user.
