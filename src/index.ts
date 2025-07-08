@@ -1,6 +1,7 @@
 import express from "express";
 import userRoutes from './routes/user.routes';
 import productRoutes from './routes/products.routes';
+import orderRoutes from './routes/orders.routes';
 import cookieParser from "cookie-parser";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./docs/swaggerConfig";
@@ -12,6 +13,7 @@ app.use(express.json());
 
 app.use('/auth',userRoutes);
 app.use('/product',productRoutes);
+app.use('/order',orderRoutes);
 
 app.use('/api-docs',swaggerUi.serve,swaggerUi.setup(swaggerSpec));
 
