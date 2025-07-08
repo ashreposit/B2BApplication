@@ -122,6 +122,7 @@ export class CustomStorage implements StorageEngine {
             Key: params.Key,
             Bucket: params.Bucket,
             ResponseContentType: `application/${format}`,
+            Expires: 60 * 60 * 24 * 7 
         });
 
         if (!signedUrl) throw new Error("URL_NOT_RECEIVED");
