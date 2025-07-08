@@ -4,9 +4,9 @@ import jwt from 'jsonwebtoken';
 import CONFIG from "../config/config";
 import { UserRole } from "@prisma/client";
 
-export const createUser = async (bodyData: { email: string, password: string, role: UserRole ,awsImageUrl:string}) => {
+export const createUser = async (bodyData: { email: string, password: string, role: UserRole, awsImageUrl: string }) => {
   try {
-    const { email, password, role , awsImageUrl } = bodyData;
+    const { email, password, role, awsImageUrl } = bodyData;
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) throw new Error("User already exists");
@@ -20,7 +20,7 @@ export const createUser = async (bodyData: { email: string, password: string, ro
         email,
         passwordHash: hashedPassword,
         role,
-        userImage:awsImageUrl||null
+        userImage: awsImageUrl || null
       }
     });
 
@@ -56,16 +56,44 @@ export const loginUser = async (bodyData: { email: string, password: string }) =
   }
 };
 
-export const getMe = async (userId:number) => {
-  const user = await prisma.user.findUnique({ where: { id: userId},select:{
-      id: true,
-      email: true,
-      role: true,
-      userImage: true,
-      createdAt: true,
-      updatedAt: true
-  } });
+export const getMe = async (userId: number) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId }, select: {
+        id: true,
+        email: true,
+        role: true,
+        userImage: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
 
-  if (!user) throw new Error('User not found');
-  return user;
+    if (!user) throw new Error('User not found');
+    return user;
+  } catch (error: any) {
+    console.error(error);
+    throw new Error(error.message);
+  }
+
+};
+
+export const updateUser = async (userId: string, bodyData: { email?: string; awsImageUrl?: string }) => {
+  try {
+    let id = Number(userId);
+
+    const user = await prisma.user.update({
+      where: { id: id }, data: {
+        email: bodyData?.email,
+        userImage: bodyData?.awsImageUrl,
+        updatedAt: new Date()
+      }
+    });
+
+    if (!updateUser) throw new Error('user updation failed');
+    return user;
+  } catch (error: any) {
+    console.log(error);
+    throw new Error(error.mesage);
+  }
 };
