@@ -90,10 +90,10 @@ export const updateUser = async (userId: string, bodyData: { email?: string; aws
       }
     });
 
-    if (!updateUser) throw new Error('user updation failed');
+    if (!user) throw new Error('user updation failed');
     return user;
   } catch (error: any) {
     console.log(error);
-    throw new Error(error.mesage);
+    throw new Error(error.message);
   }
 };
