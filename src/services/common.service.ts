@@ -13,6 +13,12 @@ interface BodyData {
     region?: string;
 }
 
+/**
+ * Custom Multer storage engine for handling image uploads to AWS S3.
+ * - Resizes and compresses images using Sharp
+ * - Uploads images to S3 and returns a signed URL
+ * - Updates request body with uploaded image URL (awsImageUrl)
+ */
 export class CustomStorage implements StorageEngine {
     private s3: AWS.S3;
     private getDestination: (req: Request, file: Express.Multer.File, cb: (error: Error | null, filename?: string) => void) => void;
@@ -28,6 +34,16 @@ export class CustomStorage implements StorageEngine {
         this.getDestination = opts.destination || ((req, file, cb) => cb(null, "/dev/null"));
     }
 
+    /**
+ * Core multer file handler function.
+ * - Resizes and compresses images
+ * - Uploads image to AWS S3
+ * - Updates req.body with AWS image URL
+ * 
+ * @param req - Express request
+ * @param file - File received from multer
+ * @param cb - Callback to notify multer of upload result
+ */
     _handleFile(req: Request, file: Express.Multer.File, cb: (error: Error | null, info?: Partial<Express.Multer.File>) => void): void {
         this.getDestination(req, file, (err, destPath) => {
             if (err) return cb(err);
@@ -59,7 +75,7 @@ export class CustomStorage implements StorageEngine {
 
                             if (data?.url) {
                                 delete (bodyData as any).imageType;
-                                req.body = {...bodyData,awsImageUrl:data?.url};
+                                req.body = { ...bodyData, awsImageUrl: data?.url };
                             }
 
                             cb(null, {
@@ -81,12 +97,24 @@ export class CustomStorage implements StorageEngine {
         });
     }
 
+    /**
+    * Remove a file from disk (if written to local filesystem)
+   */
     _removeFile(_req: Request, file: Express.Multer.File, cb: (error: Error | null) => void): void {
         if (file && file.path) {
             fs.unlink(file.path, cb);
         }
     }
 
+
+    /**
+     * Recursively compress an image buffer until it is under target size (in bytes).
+     * 
+     * @param buffer - Image buffer to compress
+     * @param targetSize - Target max file size in bytes (default: 300 KB)
+     * @param quality - Initial compression quality (default: 80)
+     * @returns Compressed image buffer
+     */
     private async compressUntilUnderSize(buffer: Buffer, targetSize = 300 * 1024, quality = 80): Promise<Buffer> {
         if (quality < 20) return buffer;
 
@@ -96,6 +124,12 @@ export class CustomStorage implements StorageEngine {
             : this.compressUntilUnderSize(buffer, targetSize, quality - 10);
     }
 
+    /**
+     * Sanitize and clean file names by removing special characters and replacing spaces.
+     * 
+     * @param fileName - Original file name
+     * @returns Cleaned file name
+     */
     private removeSpecialCharacterForFile(fileName: string): string {
         const ext = path.extname(fileName);
         let baseName = path.basename(fileName, ext);
@@ -103,6 +137,15 @@ export class CustomStorage implements StorageEngine {
         return baseName + ext;
     }
 
+    /**
+    * Upload a file buffer to AWS S3 and generate a signed URL for retrieval.
+    * 
+    * @param data - File buffer
+    * @param filename - File name for S3 object
+    * @param directoryName - Directory name in S3 bucket
+    * @param bucketName - Target S3 bucket
+    * @returns Object containing a signed URL
+    */
     private async uploadFile(
         data: Buffer,
         filename: string,
@@ -122,7 +165,7 @@ export class CustomStorage implements StorageEngine {
             Key: params.Key,
             Bucket: params.Bucket,
             ResponseContentType: `application/${format}`,
-            Expires: 60 * 60 * 24 * 7 
+            Expires: 60 * 60 * 24 * 7
         });
 
         if (!signedUrl) throw new Error("URL_NOT_RECEIVED");

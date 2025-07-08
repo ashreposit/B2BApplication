@@ -1,13 +1,19 @@
 import prisma from "../config/prismaClient";
 
+/**
+ * Create a new cart for a user and add multiple cart items to it.
+ *
+ * @param userId - ID of the user creating the cart
+ * @param cartItems - Array of productId and quantity to add
+ * @returns The created cart with its items
+ */
 export const createCart = async (userId: number, cartItems: any[]) => {
     try {
         const productIds = cartItems.map((item) => item.productId);
         const products = await prisma.product.findMany({
             where: { id: { in: productIds } }
         });
-        console.log({products});
-        console.log({cartItems});
+
         if (products.length !== cartItems.length) {
             throw new Error("Some products not found.");
         }
@@ -34,6 +40,12 @@ export const createCart = async (userId: number, cartItems: any[]) => {
     }
 };
 
+/**
+ * Fetch the cart for a given user along with its cart items and associated products.
+ *
+ * @param userId - ID of the user whose cart is being fetched
+ * @returns The user's cart with populated cartItems and product details
+ */
 export const getCart = async (userId: number) => {
     try {
         const cart = await prisma.cart.findUnique({
@@ -58,9 +70,14 @@ export const getCart = async (userId: number) => {
     }
 };
 
+/**
+ * Remove a specific cart item by its item ID.
+ *
+ * @param itemId - ID of the cart item to remove
+ * @returns The deleted cart item
+ */
 export const removeCartItem = async (itemId: number) => {
     try {
-        console.log({itemId});
         const item = await prisma.cartItem.delete({ where: { id: itemId } });
 
         return item;
@@ -70,6 +87,12 @@ export const removeCartItem = async (itemId: number) => {
     }
 };
 
+/**
+ * Clear (remove all items) from a user's cart.
+ *
+ * @param userId - ID of the user whose cart should be cleared
+ * @returns A success message
+ */
 export const clearCart = async (userId: number) => {
     try {
         const cart = await prisma.cart.findUnique({ where: { id: userId } });

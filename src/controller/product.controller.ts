@@ -1,6 +1,15 @@
 import { Request, Response } from 'express';
 import * as productService from '../services/product.service';
 
+/**
+ * Controller to create a new product.
+ * 
+ * @route POST /products
+ * @access Admin (authenticated + authorized)
+ * @param req - Express Request containing product details in body
+ * @param res - Express Response object
+ * @returns The created product
+ */
 export const createProduct = async (req: Request, res: Response): Promise<any> => {
     try {
         const productcreation = await productService.createProduct(req?.body);
@@ -14,6 +23,16 @@ export const createProduct = async (req: Request, res: Response): Promise<any> =
     }
 };
 
+
+/**
+ * Controller to fetch all products.
+ * 
+ * @route GET /products
+ * @access Public
+ * @param _req - Express Request object (not used)
+ * @param res - Express Response object
+ * @returns List of all products
+ */
 export const getAllProducts = async (_req: Request, res: Response): Promise<any> => {
     try {
         const products = await productService.getAllProducts();
@@ -24,6 +43,15 @@ export const getAllProducts = async (_req: Request, res: Response): Promise<any>
     }
 };
 
+/**
+ * Controller to fetch a product by its ID.
+ * 
+ * @route GET /products/:id
+ * @access Public
+ * @param req - Express Request containing productId as param
+ * @param res - Express Response object
+ * @returns The product if found, 404 if not
+ */
 export const getProductById = async (req: Request, res: Response): Promise<any> => {
     try {
         const product = await productService.getProductById(Number(req?.params?.id));
@@ -35,6 +63,15 @@ export const getProductById = async (req: Request, res: Response): Promise<any> 
     }
 };
 
+/**
+ * Controller to update a product by its ID.
+ * 
+ * @route PATCH /products/:id
+ * @access Admin (authenticated + authorized)
+ * @param req - Express Request containing productId as param and updated details in body
+ * @param res - Express Response object
+ * @returns The updated product
+ */
 export const updateProduct = async (req: Request, res: Response): Promise<any> => {
     try {
         const product = await productService.updateProduct(Number(req.params.id), req?.body);
@@ -44,6 +81,15 @@ export const updateProduct = async (req: Request, res: Response): Promise<any> =
     }
 };
 
+/**
+ * Controller to delete a product by its ID.
+ * 
+ * @route DELETE /products/:id
+ * @access Admin (authenticated + authorized)
+ * @param req - Express Request containing productId as param
+ * @param res - Express Response object
+ * @returns Success message on deletion
+ */
 export const deleteProduct = async (req: Request, res: Response): Promise<any> => {
     try {
         const product = await productService.deleteProduct(Number(req.params.id));
