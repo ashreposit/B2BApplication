@@ -4,6 +4,13 @@ import jwt from 'jsonwebtoken';
 import CONFIG from "../config/config";
 import { UserRole } from "@prisma/client";
 
+/**
+ * Creates a new user account.
+ * 
+ * @param bodyData - Object containing email, password, role, and optional awsImageUrl
+ * @returns The newly created user object
+ * @throws Error if user exists or on creation failure
+ */
 export const createUser = async (bodyData: { email: string, password: string, role: UserRole, awsImageUrl: string }) => {
   try {
     const { email, password, role, awsImageUrl } = bodyData;
@@ -32,6 +39,12 @@ export const createUser = async (bodyData: { email: string, password: string, ro
   }
 };
 
+/**
+ * Authenticates a user with email and password.
+ * @param bodyData - Object containing email and password
+ * @returns JWT token if login is successful
+ * @throws Error if credentials are invalid
+ */
 export const loginUser = async (bodyData: { email: string, password: string }) => {
   try {
     const { email, password } = bodyData;
@@ -56,6 +69,14 @@ export const loginUser = async (bodyData: { email: string, password: string }) =
   }
 };
 
+
+/**
+ * Retrieves a user's own profile by user ID.
+ * 
+ * @param userId - User's ID to fetch details for
+ * @returns User details object
+ * @throws Error if user not found
+ */
 export const getMe = async (userId: number) => {
   try {
     const user = await prisma.user.findUnique({
@@ -78,6 +99,15 @@ export const getMe = async (userId: number) => {
 
 };
 
+
+/**
+ * Updates user details like email and image URL.
+ * 
+ * @param userId - ID of the user to update
+ * @param bodyData - Object containing optional email and awsImageUrl
+ * @returns Updated user object
+ * @throws Error if update fails
+ */
 export const updateUser = async (userId: string, bodyData: { email?: string; awsImageUrl?: string }) => {
   try {
     let id = Number(userId);
